@@ -1,6 +1,6 @@
 # LR11xx Updater tool
 
-This tool is a reference implementation of the mechanism to update a firmware in a LR1110 / LR1120 chip. It is based on the [Application Note AN1200.57](https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/2R000000Hlit/77J00f9xeOhqu8XDfHrB0G54bEJGikO58GGYT__hyis) - "LR1110: Upgrade of the Program Memory".
+This tool is a reference implementation of the mechanism to update a firmware in a LR1110 / LR1120 / LR1121 chip. It is based on the [Application Note AN1200.57](https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/2R000000Hlit/77J00f9xeOhqu8XDfHrB0G54bEJGikO58GGYT__hyis) - "LR1110: Upgrade of the Program Memory".
 
 ## Requirements
 
@@ -27,6 +27,13 @@ The list of compatible Semtech LR1120 shields is:
 | LR1120MB1DJS | PCB_E656V01A - GNSS without LNA                       | 868/915MHz         |
 | LR1120MB1GIS | PCB_E655V01A - GNSS with LNA for Passive GNSS Antenna | 490MHz             |
 | LR1120MB1GJS | PCB_E656V01A - GNSS without LNA                       | 490MHz             |
+
+The list of compatible Semtech LR1121 shields is:
+
+| Shield       | PCB          | Frequency matching |
+| ------------ | ------------ | ------------------ |
+| LR1121MB1DIS | PCB_E655V01A | 868/915MHz         |
+| LR1121MB1GIS | PCB_E655V01A | 490MHz             |
 
 ### Touchscreen (optional)
 

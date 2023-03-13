@@ -147,6 +147,7 @@ lr11xx_fw_update_status_t lr11xx_update_firmware( void* radio, lr11xx_fw_update_
     {
     case LR1110_FIRMWARE_UPDATE_TO_TRX:
     case LR1120_FIRMWARE_UPDATE_TO_TRX:
+    case LR1121_FIRMWARE_UPDATE_TO_TRX:
     {
         lr11xx_system_version_t version_trx = { 0x00 };
         lr11xx_system_uid_t     uid         = { 0x00 };
@@ -216,6 +217,10 @@ bool lr11xx_is_fw_compatible_with_chip( lr11xx_fw_update_t update, uint16_t boot
         return false;
     }
     else if( ( update == LR1120_FIRMWARE_UPDATE_TO_TRX ) && ( bootloader_version != 0x2000 ) )
+    {
+        return false;
+    }
+    else if( ( update == LR1121_FIRMWARE_UPDATE_TO_TRX ) && ( bootloader_version != 0x2100 ) )
     {
         return false;
     }

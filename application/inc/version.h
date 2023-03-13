@@ -48,7 +48,7 @@ extern "C" {
 
 #ifndef DEMO_VERSION
 #warning "No demo version provided"
-#define DEMO_VERSION "v2.0.0"
+#define DEMO_VERSION "v2.1.0"
 #endif
 
 /*

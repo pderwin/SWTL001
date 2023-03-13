@@ -132,6 +132,11 @@ void gui_init( lr11xx_fw_update_t update, uint32_t fw_expected )
         sprintf( buffer, "Update LR1120 to FW 0x%04x", fw_expected );
         break;
     }
+    case LR1121_FIRMWARE_UPDATE_TO_TRX:
+    {
+        sprintf( buffer, "Update LR1121 to FW 0x%04x", fw_expected );
+        break;
+    }
     }
 
     lv_obj_t* lbl_fw = lv_label_create( screen, NULL );

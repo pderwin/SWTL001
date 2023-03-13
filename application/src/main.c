@@ -37,7 +37,7 @@
  * --- DEPENDENCIES ------------------------------------------------------------
  */
 
-#include "lr1120_transceiver_0101.h"
+#include "lr1121_transceiver_0101.h"
 
 #include "configuration.h"
 #include "system.h"
@@ -106,17 +106,28 @@ int main( void )
 
     gui_init( LR11XX_FIRMWARE_UPDATE_TO, LR11XX_FIRMWARE_VERSION );
 
-    if( LR11XX_FIRMWARE_UPDATE_TO == LR1110_FIRMWARE_UPDATE_TO_TRX )
+    switch( LR11XX_FIRMWARE_UPDATE_TO )
+    {
+    case LR1110_FIRMWARE_UPDATE_TO_TRX:
     {
         printf( "Update LR1110 to transceiver firmware 0x%04x\n", LR11XX_FIRMWARE_VERSION );
+        break;
     }
-    if( LR11XX_FIRMWARE_UPDATE_TO == LR1120_FIRMWARE_UPDATE_TO_TRX )
+    case LR1120_FIRMWARE_UPDATE_TO_TRX:
     {
         printf( "Update LR1120 to transceiver firmware 0x%04x\n", LR11XX_FIRMWARE_VERSION );
+        break;
     }
-    else
+    case LR1121_FIRMWARE_UPDATE_TO_TRX:
     {
-        printf( "Update LR1110 to modem firmware 0x%04x\n", LR11XX_FIRMWARE_VERSION );
+        printf( "Update LR1121 to transceiver firmware 0x%04x\n", LR11XX_FIRMWARE_VERSION );
+        break;
+    }
+    case LR1110_FIRMWARE_UPDATE_TO_MODEM:
+    {
+        printf( "Update LR1110 to modem firmware 0x%06x\n", LR11XX_FIRMWARE_VERSION );
+        break;
+    }
     }
 
     while( 1 )
