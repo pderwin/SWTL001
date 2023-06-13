@@ -37,7 +37,7 @@
  * --- DEPENDENCIES ------------------------------------------------------------
  */
 
-#include "lr1121_transceiver_0101.h"
+#include "lr1110_transceiver_0308.h"
 
 #include "configuration.h"
 #include "system.h"
