@@ -36,15 +36,16 @@
  * -----------------------------------------------------------------------------
  * --- DEPENDENCIES ------------------------------------------------------------
  */
-
+#include <zephyr/kernel.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "lr11xx_bootloader.h"
 #include "lr11xx_system.h"
 #include "lr11xx_firmware_update.h"
+#include "lr11xx_hal.h"
+
 #include "lr1110_modem_lorawan.h"
-#include "system.h"
-#include <stdint.h>
 
 /*
  * -----------------------------------------------------------------------------
@@ -68,8 +69,6 @@
  * --- PRIVATE VARIABLES -------------------------------------------------------
  */
 
-static gpio_t lr11xx_busy = { LR11XX_BUSY_PORT, LR11XX_BUSY_PIN };
-
 /*
  * -----------------------------------------------------------------------------
  * --- PRIVATE FUNCTIONS DECLARATION -------------------------------------------
@@ -84,28 +83,22 @@ bool lr11xx_is_fw_compatible_with_chip( lr11xx_fw_update_t update, uint16_t boot
  * --- PUBLIC FUNCTIONS DEFINITION ---------------------------------------------
  */
 
-lr11xx_fw_update_status_t lr11xx_update_firmware( void* radio, lr11xx_fw_update_t fw_update_direction,
+lr11xx_fw_update_status_t lr11xx_update_firmware( const void* radio, lr11xx_fw_update_t fw_update_direction,
                                                   uint32_t fw_expected, const uint32_t* buffer, uint32_t length )
 {
     lr11xx_bootloader_version_t version_bootloader = { 0 };
 
-    printf( "Reset the chip...\n" );
+    printk( "Reset the chip...\n");
 
-    system_gpio_init_direction_state( lr11xx_busy, SYSTEM_GPIO_PIN_DIRECTION_OUTPUT, SYSTEM_GPIO_PIN_STATE_LOW );
+    lr11xx_hal_reset_programming_mode(radio);
 
-    lr11xx_system_reset( radio );
-
-    system_time_wait_ms( 500 );
-    system_gpio_init_direction_state( lr11xx_busy, SYSTEM_GPIO_PIN_DIRECTION_INPUT, SYSTEM_GPIO_PIN_STATE_LOW );
-    system_time_wait_ms( 100 );
-
-    printf( "> Reset done!\n" );
+    printk( "> Reset done!\n" );
 
     lr11xx_bootloader_get_version( radio, &version_bootloader );
-    printf( "Chip in bootloader mode:\n" );
-    printf( " - Chip type               = 0x%02X (0xDF for production)\n", version_bootloader.type );
-    printf( " - Chip hardware version   = 0x%02X (0x22 for V2C)\n", version_bootloader.hw );
-    printf( " - Chip bootloader version = 0x%04X \n", version_bootloader.fw );
+    printk( "Chip in bootloader mode:\n" );
+    printk( " - Chip type               = 0x%02X (0xDF for production)\n", version_bootloader.type );
+    printk( " - Chip hardware version   = 0x%02X (0x22 for V2C)\n", version_bootloader.hw );
+    printk( " - Chip bootloader version = 0x%04X \n", version_bootloader.fw );
 
     if( lr11xx_is_chip_in_production_mode( version_bootloader.type ) == false )
     {
@@ -125,23 +118,23 @@ lr11xx_fw_update_status_t lr11xx_update_firmware( void* radio, lr11xx_fw_update_
     lr11xx_bootloader_read_chip_eui( radio, chip_eui );
     lr11xx_bootloader_read_join_eui( radio, join_eui );
 
-    printf( "PIN is     0x%02X%02X%02X%02X\n", pin[0], pin[1], pin[2], pin[3] );
-    printf( "ChipEUI is 0x%02X%02X%02X%02X%02X%02X%02X%02X\n", chip_eui[0], chip_eui[1], chip_eui[2], chip_eui[3],
+    printk( "PIN is     0x%02X%02X%02X%02X\n", pin[0], pin[1], pin[2], pin[3] );
+    printk( "ChipEUI is 0x%02X%02X%02X%02X%02X%02X%02X%02X\n", chip_eui[0], chip_eui[1], chip_eui[2], chip_eui[3],
             chip_eui[4], chip_eui[5], chip_eui[6], chip_eui[7] );
-    printf( "JoinEUI is 0x%02X%02X%02X%02X%02X%02X%02X%02X\n", join_eui[0], join_eui[1], join_eui[2], join_eui[3],
+    printk( "JoinEUI is 0x%02X%02X%02X%02X%02X%02X%02X%02X\n", join_eui[0], join_eui[1], join_eui[2], join_eui[3],
             join_eui[4], join_eui[5], join_eui[6], join_eui[7] );
 
-    printf( "Start flash erase...\n" );
+    printk( "Start flash erase...\n" );
     lr11xx_bootloader_erase_flash( radio );
-    printf( "> Flash erase done!\n" );
+    printk( "> Flash erase done!\n" );
 
-    printf( "Start flashing firmware...\n" );
+    printk( "Start flashing firmware...\n" );
     lr11xx_bootloader_write_flash_encrypted_full( radio, 0, buffer, length );
-    printf( "> Flashing done!\n" );
+    printk( "> Flashing done!\n" );
 
-    printf( "Rebooting...\n" );
+    printk( "Rebooting...\n" );
     lr11xx_bootloader_reboot( radio, false );
-    printf( "> Reboot done!\n" );
+    printk( "> Reboot done!\n" );
 
     switch( fw_update_direction )
     {
@@ -153,10 +146,10 @@ lr11xx_fw_update_status_t lr11xx_update_firmware( void* radio, lr11xx_fw_update_
         lr11xx_system_uid_t     uid         = { 0x00 };
 
         lr11xx_system_get_version( radio, &version_trx );
-        printf( "Chip in transceiver mode:\n" );
-        printf( " - Chip type             = 0x%02X\n", version_trx.type );
-        printf( " - Chip hardware version = 0x%02X\n", version_trx.hw );
-        printf( " - Chip firmware version = 0x%04X\n", version_trx.fw );
+        printk( "Chip in transceiver mode:\n" );
+        printk( " - Chip type             = 0x%02X\n", version_trx.type );
+        printk( " - Chip hardware version = 0x%02X\n", version_trx.hw );
+        printk( " - Chip firmware version = 0x%04X\n", version_trx.fw );
 
         lr11xx_system_read_uid( radio, uid );
 
@@ -170,11 +163,12 @@ lr11xx_fw_update_status_t lr11xx_update_firmware( void* radio, lr11xx_fw_update_
         }
         break;
     }
+#if 0
     case LR1110_FIRMWARE_UPDATE_TO_MODEM:
     {
         lr1110_modem_version_t version_modem = { 0 };
 
-        system_time_wait_ms( 2000 );
+        k_sleep(K_MSEC( 2000 ));
 
         lr1110_modem_get_version( radio, &version_modem );
         printf( "Chip in LoRa Basics Modem-E mode:\n" );
@@ -194,6 +188,9 @@ lr11xx_fw_update_status_t lr11xx_update_firmware( void* radio, lr11xx_fw_update_
         }
         break;
     }
+#endif
+        default:
+           break;
     }
 
     return LR11XX_FW_UPDATE_ERROR;
