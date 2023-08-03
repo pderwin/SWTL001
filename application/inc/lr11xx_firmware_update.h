@@ -81,7 +81,7 @@ typedef enum
  * --- PUBLIC FUNCTIONS PROTOTYPES ---------------------------------------------
  */
 
-lr11xx_fw_update_status_t lr11xx_update_firmware( void* radio, lr11xx_fw_update_t fw_update_direction,
+lr11xx_fw_update_status_t lr11xx_update_firmware( const void* radio, lr11xx_fw_update_t fw_update_direction,
                                                   uint32_t fw_expected, const uint32_t* buffer, uint32_t length );
 
 #ifdef __cplusplus
