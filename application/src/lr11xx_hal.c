@@ -93,6 +93,20 @@ lr11xx_hal_status_t lr11xx_hal_wakeup( const void* radio )
     return LR11XX_HAL_STATUS_OK;
 }
 
+lr11xx_hal_status_t lr11xx_hal_abort_blocking_cmd( const void* radio )
+{
+    radio_t* radio_local = ( radio_t* ) radio;
+    uint8_t                     command[4]     = { 0 };
+
+    system_gpio_set_pin_state( radio_local->nss, SYSTEM_GPIO_PIN_STATE_LOW );
+    system_spi_write( radio_local->spi, command, 4 );
+    system_gpio_set_pin_state( radio_local->nss, SYSTEM_GPIO_PIN_STATE_HIGH );
+
+    system_gpio_wait_for_state( radio_local->busy, SYSTEM_GPIO_PIN_STATE_LOW );
+
+    return LR11XX_HAL_STATUS_OK;
+}
+
 lr11xx_hal_status_t lr11xx_hal_read( const void* radio, const uint8_t* cbuffer, const uint16_t cbuffer_length,
                                      uint8_t* rbuffer, const uint16_t rbuffer_length )
 {
