@@ -43,7 +43,7 @@
 #include "lr11xx_bootloader.h"
 #include "lr11xx_system.h"
 #include "lr11xx_firmware_update.h"
-#include "lr11xx_hal.h"
+#include "lr11xx_drv.h"
 
 #include "lr1110_modem_lorawan.h"
 
@@ -84,13 +84,13 @@ bool lr11xx_is_fw_compatible_with_chip( lr11xx_fw_update_t update, uint16_t boot
  */
 
 lr11xx_fw_update_status_t lr11xx_update_firmware( const void* radio, lr11xx_fw_update_t fw_update_direction,
-                                                  uint32_t fw_expected, const uint32_t* buffer, uint32_t length )
+						  uint32_t fw_expected, const uint32_t* buffer, uint32_t length )
 {
     lr11xx_bootloader_version_t version_bootloader = { 0 };
 
     printk( "Reset the chip...\n");
 
-    lr11xx_hal_reset_programming_mode(radio);
+    lr11xx_drv_reset_programming_mode(radio);
 
     printk( "> Reset done!\n" );
 
@@ -102,12 +102,12 @@ lr11xx_fw_update_status_t lr11xx_update_firmware( const void* radio, lr11xx_fw_u
 
     if( lr11xx_is_chip_in_production_mode( version_bootloader.type ) == false )
     {
-        return LR11XX_FW_UPDATE_WRONG_CHIP_TYPE;
+	return LR11XX_FW_UPDATE_WRONG_CHIP_TYPE;
     }
 
     if( lr11xx_is_fw_compatible_with_chip( fw_update_direction, version_bootloader.fw ) == false )
     {
-        return LR11XX_FW_UPDATE_WRONG_CHIP_TYPE;
+	return LR11XX_FW_UPDATE_WRONG_CHIP_TYPE;
     };
 
     lr11xx_bootloader_pin_t      pin      = { 0x00 };
@@ -120,9 +120,9 @@ lr11xx_fw_update_status_t lr11xx_update_firmware( const void* radio, lr11xx_fw_u
 
     printk( "PIN is     0x%02X%02X%02X%02X\n", pin[0], pin[1], pin[2], pin[3] );
     printk( "ChipEUI is 0x%02X%02X%02X%02X%02X%02X%02X%02X\n", chip_eui[0], chip_eui[1], chip_eui[2], chip_eui[3],
-            chip_eui[4], chip_eui[5], chip_eui[6], chip_eui[7] );
+	    chip_eui[4], chip_eui[5], chip_eui[6], chip_eui[7] );
     printk( "JoinEUI is 0x%02X%02X%02X%02X%02X%02X%02X%02X\n", join_eui[0], join_eui[1], join_eui[2], join_eui[3],
-            join_eui[4], join_eui[5], join_eui[6], join_eui[7] );
+	    join_eui[4], join_eui[5], join_eui[6], join_eui[7] );
 
     printk( "Start flash erase...\n" );
     lr11xx_bootloader_erase_flash( radio );
@@ -142,55 +142,55 @@ lr11xx_fw_update_status_t lr11xx_update_firmware( const void* radio, lr11xx_fw_u
     case LR1120_FIRMWARE_UPDATE_TO_TRX:
     case LR1121_FIRMWARE_UPDATE_TO_TRX:
     {
-        lr11xx_system_version_t version_trx = { 0x00 };
-        lr11xx_system_uid_t     uid         = { 0x00 };
+	lr11xx_system_version_t version_trx = { 0x00 };
+	lr11xx_system_uid_t     uid         = { 0x00 };
 
-        lr11xx_system_get_version( radio, &version_trx );
-        printk( "Chip in transceiver mode:\n" );
-        printk( " - Chip type             = 0x%02X\n", version_trx.type );
-        printk( " - Chip hardware version = 0x%02X\n", version_trx.hw );
-        printk( " - Chip firmware version = 0x%04X\n", version_trx.fw );
+	lr11xx_system_get_version( radio, &version_trx );
+	printk( "Chip in transceiver mode:\n" );
+	printk( " - Chip type             = 0x%02X\n", version_trx.type );
+	printk( " - Chip hardware version = 0x%02X\n", version_trx.hw );
+	printk( " - Chip firmware version = 0x%04X\n", version_trx.fw );
 
-        lr11xx_system_read_uid( radio, uid );
+	lr11xx_system_read_uid( radio, uid );
 
-        if( version_trx.fw == fw_expected )
-        {
-            return LR11XX_FW_UPDATE_OK;
-        }
-        else
-        {
-            return LR11XX_FW_UPDATE_ERROR;
-        }
-        break;
+	if( version_trx.fw == fw_expected )
+	{
+	    return LR11XX_FW_UPDATE_OK;
+	}
+	else
+	{
+	    return LR11XX_FW_UPDATE_ERROR;
+	}
+	break;
     }
 #if 0
     case LR1110_FIRMWARE_UPDATE_TO_MODEM:
     {
-        lr1110_modem_version_t version_modem = { 0 };
+	lr1110_modem_version_t version_modem = { 0 };
 
-        k_sleep(K_MSEC( 2000 ));
+	k_sleep(K_MSEC( 2000 ));
 
-        lr1110_modem_get_version( radio, &version_modem );
-        printf( "Chip in LoRa Basics Modem-E mode:\n" );
-        printf( " - Chip bootloader version = 0x%08x\n", version_modem.bootloader );
-        printf( " - Chip firmware version   = 0x%08x\n", version_modem.firmware );
-        printf( " - Chip LoRaWAN version    = 0x%04x\n", version_modem.lorawan );
+	lr1110_modem_get_version( radio, &version_modem );
+	printf( "Chip in LoRa Basics Modem-E mode:\n" );
+	printf( " - Chip bootloader version = 0x%08x\n", version_modem.bootloader );
+	printf( " - Chip firmware version   = 0x%08x\n", version_modem.firmware );
+	printf( " - Chip LoRaWAN version    = 0x%04x\n", version_modem.lorawan );
 
-        uint32_t fw_version = ( ( uint32_t ) ( version_modem.functionality ) << 24 ) + version_modem.firmware;
+	uint32_t fw_version = ( ( uint32_t ) ( version_modem.functionality ) << 24 ) + version_modem.firmware;
 
-        if( fw_version == fw_expected )
-        {
-            return LR11XX_FW_UPDATE_OK;
-        }
-        else
-        {
-            return LR11XX_FW_UPDATE_ERROR;
-        }
-        break;
+	if( fw_version == fw_expected )
+	{
+	    return LR11XX_FW_UPDATE_OK;
+	}
+	else
+	{
+	    return LR11XX_FW_UPDATE_ERROR;
+	}
+	break;
     }
 #endif
-        default:
-           break;
+	default:
+	   break;
     }
 
     return LR11XX_FW_UPDATE_ERROR;
@@ -209,17 +209,17 @@ bool lr11xx_is_chip_in_production_mode( uint8_t type )
 bool lr11xx_is_fw_compatible_with_chip( lr11xx_fw_update_t update, uint16_t bootloader_version )
 {
     if( ( ( update == LR1110_FIRMWARE_UPDATE_TO_TRX ) || ( update == LR1110_FIRMWARE_UPDATE_TO_MODEM ) ) &&
-        ( bootloader_version != 0x6500 ) )
+	( bootloader_version != 0x6500 ) )
     {
-        return false;
+	return false;
     }
     else if( ( update == LR1120_FIRMWARE_UPDATE_TO_TRX ) && ( bootloader_version != 0x2000 ) )
     {
-        return false;
+	return false;
     }
     else if( ( update == LR1121_FIRMWARE_UPDATE_TO_TRX ) && ( bootloader_version != 0x2100 ) )
     {
-        return false;
+	return false;
     }
 
     return true;
